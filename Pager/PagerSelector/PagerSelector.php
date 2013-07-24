@@ -23,10 +23,13 @@ class PagerSelector {
 //    private $pageNo;
 //    private $pageSize;
 
+    private $maxSelector;
+
     function __construct(FormFactory $formFactory)
     {
         $this->formFactory = $formFactory;
         $this->formCreatedFlug = false;
+        $this->maxSelector = 10;
 
         $this->formModel = new PagerSelectorFormModel();
         $this->formType = new PagerSelectorFormType();
@@ -110,6 +113,22 @@ class PagerSelector {
         return $this->formModel->getPageSize();
     }
 
+    /**
+     * @param mixed $maxSelector
+     */
+    public function setMaxSelector($maxSelector)
+    {
+        $this->maxSelector = $maxSelector;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMaxSelector()
+    {
+        return $this->maxSelector;
+    }
+
     public function setPageSizeList($pageSizeList)
     {
         $this->formType->setSizeList($pageSizeList);
@@ -150,7 +169,24 @@ class PagerSelector {
             $totalNum++;
         }
 
-        for($i=0; $i<$totalNum; $i++)
+        //max column count
+        $nowPageNo = $this->formModel->getPageNo() -1;
+        $startPosition = $nowPageNo - (int)($this->maxSelector / 2);
+        if($startPosition < 0){
+            $startPosition = 0;
+        }
+        $endPosition = $startPosition + $this->maxSelector;
+        if($endPosition > $totalNum){
+            $gap = $endPosition - $totalNum;
+            $startPosition -= $gap;
+            if($startPosition < 0){
+                $startPosition = 0;
+            }
+
+            $endPosition = $totalNum;
+        }
+
+        for($i=$startPosition; $i<$endPosition; $i++)
         {
             $row = new PagerSelectorNoRowView();
 
@@ -169,6 +205,26 @@ class PagerSelector {
 
             $pageNoListView->addRows($row);
         }
+
+        //next
+        $nexPageNo = $this->formModel->getPageNo() + 1;
+        $nexPageStatus = true;
+        if($nexPageNo > $totalNum){
+            $nexPageNo = $totalNum;
+            $nexPageStatus = false;
+        }
+        $pageNoListView->setNextPageNo($nexPageNo);
+        $pageNoListView->setNextPageStatus($nexPageStatus);
+
+        //previous
+        $prevPageNo = $this->formModel->getPageNo() -1;
+        $prevPageStatus = true;
+        if($prevPageNo <= 0){
+            $prevPageNo = 0;
+            $prevPageStatus = false;
+        }
+        $pageNoListView->setPrevPageNo($prevPageNo);
+        $pageNoListView->setPrevPageStatus($prevPageStatus);
 
         return $pageNoListView;
     }
@@ -192,6 +248,9 @@ class PagerSelector {
         //pagesize
         $pageSizeView = $this->createPagerSizeView();
         $basicPagerView->setPageSize($pageSizeView);
+
+        //
+//        $basicPagerView->setNextPageNo()
 
         return $basicPagerView;
     }

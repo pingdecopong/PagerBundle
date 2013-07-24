@@ -1,6 +1,12 @@
 {# default selector #}
 
 <div class="pdp_pager_selector">
+    {% if pager.PagerSelector.PageNo.PrevPageStatus %}
+        <a href="{{ path(pager.LinkRouteName, pager.PagerSelector.PageNo.PrevPageQuery)|raw }}" >前のページ</a>
+    {% else %}
+        前のページ
+    {% endif %}
+
     {% for page in pager.PagerSelector.PageNo.Rows %}
         {% if page.select %}
             {{ page.label }}
@@ -8,4 +14,10 @@
             <a href="{{ path(pager.LinkRouteName, page.query)|raw }}" >{{ page.label }}</a>
         {% endif %}
     {% endfor %}
+
+    {% if pager.PagerSelector.PageNo.NextPageStatus %}
+        <a href="{{ path(pager.LinkRouteName, pager.PagerSelector.PageNo.NextPageQuery)|raw }}" >次のページ</a>
+    {% else %}
+        次のページ
+    {% endif %}
 </div>

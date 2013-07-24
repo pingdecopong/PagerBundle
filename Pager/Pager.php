@@ -77,6 +77,22 @@ class Pager {
         return $this->pagerFormView;
     }
 
+    /**
+     * @param mixed $maxSelector
+     */
+    public function setMaxSelector($maxSelector)
+    {
+        $this->pagerSelector->setMaxSelector($maxSelector);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMaxSelector()
+    {
+        return $this->pagerSelector->getMaxSelector();
+    }
+
     public function getPageNo()
     {
         return $this->pagerSelector->getPageNo();
@@ -223,7 +239,6 @@ class Pager {
         }
 
         //ページサイズ変更時のリンクパラメータ作成
-        $a = $this->pagerSelector->getPageSizeList();
         foreach($this->pagerSelector->getPageSizeList() as $key => $value)
         {
             /* @var $value \pingdecopong\PagerBundle\Pager\PagerColumn\PagerColumnRowView */
@@ -233,6 +248,20 @@ class Pager {
 
             $pagerView->addPageSizeParamList($key, $temp);
         }
+
+        //prev クリック時のリンクパラメータ作成
+        $prevPageNo = $pagerView->getPagerSelector()->getPageNo()->getPrevPageNo();
+        /* @var $value \pingdecopong\PagerBundle\Pager\PagerSelector\PagerSelectorNoRowView */
+        $temp = $queryAllData;
+        $temp[$queryPagerData['pageNo']] = $prevPageNo;
+        $pagerView->getPagerSelector()->getPageNo()->setPrevPageQuery($temp);
+
+        //next クリック時のリンクパラメータ作成
+        $nextPageNo = $pagerView->getPagerSelector()->getPageNo()->getNextPageNo();
+        /* @var $value \pingdecopong\PagerBundle\Pager\PagerSelector\PagerSelectorNoRowView */
+        $temp = $queryAllData;
+        $temp[$queryPagerData['pageNo']] = $nextPageNo;
+        $pagerView->getPagerSelector()->getPageNo()->setNextPageQuery($temp);
 
         //route name
         $pagerView->setLinkRouteName($this->linkRouteName);
