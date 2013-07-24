@@ -45,6 +45,11 @@ class PagerView {
      */
     private $pageSizeParamList;
 
+    /**
+     * @var int
+     */
+    private $allCount;
+
     function __construct()
     {
         $this->pageSizeParamList = array();
@@ -147,6 +152,22 @@ class PagerView {
     public function getPagerSelector()
     {
         return $this->pagerSelector;
+    }
+
+    /**
+     * @param int $allCount
+     */
+    public function setAllCount($allCount)
+    {
+        $this->allCount = $allCount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAllCount()
+    {
+        return $this->allCount;
     }
 
 }
