@@ -1,6 +1,5 @@
 {
     "name": "pingdecopong/PagerBundle",
-    "version": "0.0.6",
     "type": "symfony-bundle",
     "description": "pager bundle.",
     "keywords": ["pager"],

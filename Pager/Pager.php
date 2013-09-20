@@ -295,20 +295,86 @@ class Pager {
         return $queryPagerData;
     }
 
-    private function generateQueryArray(FormView $formView, &$queryArray, $validCheck = true)
+    private function generateQueryArray(FormView $formView, &$queryArray, $validCheck = true, $choiceFlag = false, $expanded = false, $multiple = false)
     {
         if(count($formView) == 0)
         {
             if($validCheck && $formView->vars['valid'] == false){
                 $queryArray[$formView->vars['full_name']] = '';
             }else{
-                $queryArray[$formView->vars['full_name']] = $formView->vars['value'];
+
+                if($choiceFlag){
+
+                    if($expanded == true && $multiple == true){
+
+                        if($formView->vars['checked'] == true){
+                            $key = $replace = substr( $formView->vars['full_name'] , 0 , strlen($formView->vars['full_name'])-2 );
+
+                            if(!isset($queryArray[$key])){
+                                $queryArray[$key] = array();
+                            }
+                            $queryArray[$key][] = $formView->vars['value'];
+                        }
+
+                    }else if($expanded == true && $multiple == false){
+
+                        if($formView->vars['checked'] == true){
+                            $queryArray[$formView->vars['full_name']] = $formView->vars['value'];
+                        }
+
+                    }else if($expanded == false && $multiple == true){
+
+                        $key = $replace = substr( $formView->vars['full_name'] , 0 , strlen($formView->vars['full_name'])-2 );
+                        $queryArray[$key] = $formView->vars['value'];
+
+                    }else if($expanded == false && $multiple == false){
+
+                        $queryArray[$formView->vars['full_name']] = $formView->vars['value'];
+
+                    }
+
+                }else{
+                    $queryArray[$formView->vars['full_name']] = $formView->vars['value'];
+                }
+
             }
         }else
         {
             foreach($formView as $value)
             {
-                $this->generateQueryArray($value, $queryArray);
+                //add start
+                if($choiceFlag == false &&
+                    isset($value->vars['expanded']) && $value->vars['expanded'] == true &&
+                    isset($value->vars['multiple']) && $value->vars['multiple'] == true
+                ){
+
+                    $this->generateQueryArray($value, $queryArray, true, true, true, true);
+
+                }else if($choiceFlag == false &&
+                    isset($value->vars['expanded']) && $value->vars['expanded'] == true &&
+                    isset($value->vars['multiple']) && $value->vars['multiple'] == false
+                ){
+
+                    $this->generateQueryArray($value, $queryArray, true, true, true, false);
+
+                }else if($choiceFlag == false &&
+                    isset($value->vars['expanded']) && $value->vars['expanded'] == false &&
+                    isset($value->vars['multiple']) && $value->vars['multiple'] == true
+                ){
+
+                    $this->generateQueryArray($value, $queryArray, true, true, false, true);
+
+                }else if($choiceFlag == false &&
+                    isset($value->vars['expanded']) && $value->vars['expanded'] == false &&
+                    isset($value->vars['multiple']) && $value->vars['multiple'] == false
+                ){
+
+                    $this->generateQueryArray($value, $queryArray, true, true, false, false);
+
+                }else{
+                    $this->generateQueryArray($value, $queryArray, true, $choiceFlag, $expanded, $multiple);
+                }
+
             }
         }
         return $queryArray;
